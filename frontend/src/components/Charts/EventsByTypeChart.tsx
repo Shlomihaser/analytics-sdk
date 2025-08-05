@@ -2,11 +2,13 @@ import React from 'react';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from 'recharts';
 import { useEventsByType } from '../../hooks/useApi';
 import { ChartSkeleton } from '../UI/LoadingSkeleton';
+import { useSettings } from '../../context/SettingsContext';
 
 const COLORS = ['#3B82F6', '#8B5CF6', '#10B981', '#F59E0B', '#EF4444', '#6366F1'];
 
 export const EventsByTypeChart: React.FC = () => {
   const { data, isLoading, error } = useEventsByType();
+  const { chartAnimationsEnabled } = useSettings();
 
   if (isLoading) {
     return <ChartSkeleton />;
@@ -59,13 +61,18 @@ export const EventsByTypeChart: React.FC = () => {
               label={({ eventType, percent }) => 
                 `${eventType} ${(percent * 100).toFixed(1)}%`
               }
+              animationBegin={0}
+              animationDuration={chartAnimationsEnabled ? 800 : 0}
             >
               {data?.map((entry, index) => (
                 <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
               ))}
             </Pie>
             <Tooltip content={<CustomTooltip />} />
-            <Legend />
+            <Legend 
+              formatter={(value, entry) => entry.payload.eventType}
+              wrapperStyle={{ color: '#6B7280' }}
+            />
           </PieChart>
         </ResponsiveContainer>
       </div>

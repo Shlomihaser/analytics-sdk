@@ -2,9 +2,11 @@ import React from 'react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { useTopUsers } from '../../hooks/useApi';
 import { ChartSkeleton } from '../UI/LoadingSkeleton';
+import { useSettings } from '../../context/SettingsContext';
 
 export const TopUsersChart: React.FC = () => {
   const { data, isLoading, error } = useTopUsers();
+  const { chartAnimationsEnabled } = useSettings();
 
   if (isLoading) {
     return <ChartSkeleton />;
@@ -23,7 +25,18 @@ export const TopUsersChart: React.FC = () => {
     );
   }
 
-  console.log('TopUsersChart data:', data);
+  if (!data || data.length === 0) {
+    return (
+      <div className="bg-white dark:bg-gray-800 rounded-lg p-6 shadow-sm">
+        <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+          Top Users by Events
+        </h3>
+        <div className="text-center text-gray-500 dark:text-gray-400 py-8">
+          No user data available
+        </div>
+      </div>
+    );
+  }
 
   const CustomTooltip = ({ active, payload, label }: any) => {
     if (active && payload && payload.length) {
@@ -51,26 +64,30 @@ export const TopUsersChart: React.FC = () => {
         <ResponsiveContainer width="100%" height="100%">
           <BarChart
             data={data}
-            layout="horizontal"
-            margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
+            margin={{ top: 20, right: 30, left: 20, bottom: 60 }}
           >
             <CartesianGrid strokeDasharray="3 3" className="opacity-30" />
             <XAxis 
-              type="number" 
-              domain={[0, 'dataMax']}
+              dataKey="userId"
+              angle={-45}
+              textAnchor="end"
+              height={60}
               className="text-gray-600 dark:text-gray-400"
+              tick={{ fontSize: 10 }}
             />
             <YAxis 
-              type="category" 
-              dataKey={data && data.length && data[0].userName ? "userName" : "userId"}
-              width={120}
+              domain={[0, 'dataMax + 1']}
               className="text-gray-600 dark:text-gray-400"
             />
             <Tooltip content={<CustomTooltip />} />
             <Bar 
               dataKey="eventCount" 
               fill="#8B5CF6"
-              radius={[0, 4, 4, 0]}
+              radius={[4, 4, 0, 0]}
+              stroke="#7C3AED"
+              strokeWidth={1}
+              animationBegin={0}
+              animationDuration={chartAnimationsEnabled ? 800 : 0}
             />
           </BarChart>
         </ResponsiveContainer>

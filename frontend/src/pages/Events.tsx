@@ -1,27 +1,38 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { format } from 'date-fns';
 import { 
-  Search, 
   Filter, 
   Download, 
-  Calendar,
   ChevronLeft,
   ChevronRight,
   RefreshCw
 } from 'lucide-react';
 import { useEvents } from '../hooks/useApi';
+import { eventsApi } from '../services/api';
 import { FilterOptions } from '../types';
+import { useSettings } from '../context/SettingsContext';
 import { LoadingSkeleton } from '../components/UI/LoadingSkeleton';
 
 export const Events: React.FC = () => {
+  const { eventsPerPage } = useSettings();
+  
   const [filters, setFilters] = useState<FilterOptions>({
     page: 1,
-    limit: 20
+    limit: eventsPerPage
   });
   
   const [showFilters, setShowFilters] = useState(false);
   
   const { data, isLoading, error, refetch } = useEvents(filters);
+
+  // Update filters when eventsPerPage setting changes
+  useEffect(() => {
+    setFilters(prev => ({
+      ...prev,
+      limit: eventsPerPage,
+      page: 1 // Reset to first page when changing limit
+    }));
+  }, [eventsPerPage]);
 
   const handleFilterChange = (key: keyof FilterOptions, value: any) => {
     setFilters(prev => ({
@@ -38,18 +49,20 @@ export const Events: React.FC = () => {
     }));
   };
 
-  const handleExport = async (format: 'csv' | 'json') => {
+  const handleExport = async (format: 'csv') => {
     try {
-      // This would call the actual export API
-      console.log(`Exporting events as ${format}...`);
-      // const blob = await eventsApi.exportEvents(filters, format);
-      // const url = window.URL.createObjectURL(blob);
-      // const a = document.createElement('a');
-      // a.href = url;
-      // a.download = `events-${Date.now()}.${format}`;
-      // a.click();
+      const blob = await eventsApi.exportEvents(filters, format);
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `events-${Date.now()}.${format}`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      window.URL.revokeObjectURL(url);
     } catch (error) {
       console.error('Export failed:', error);
+      alert('Export failed. Please try again.');
     }
   };
 
@@ -102,22 +115,13 @@ export const Events: React.FC = () => {
             Filters
           </button>
           
-          <div className="flex items-center space-x-2">
-            <button
-              onClick={() => handleExport('csv')}
-              className="flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200"
-            >
-              <Download className="w-4 h-4 mr-2" />
-              CSV
-            </button>
-            <button
-              onClick={() => handleExport('json')}
-              className="flex items-center px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors duration-200"
-            >
-              <Download className="w-4 h-4 mr-2" />
-              JSON
-            </button>
-          </div>
+          <button
+            onClick={() => handleExport('csv')}
+            className="flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200"
+          >
+            <Download className="w-4 h-4 mr-2" />
+            Export CSV
+          </button>
         </div>
       </div>
 
@@ -183,7 +187,7 @@ export const Events: React.FC = () => {
           
           <div className="mt-4 flex justify-end space-x-3">
             <button
-              onClick={() => setFilters({ page: 1, limit: 20 })}
+              onClick={() => setFilters({ page: 1, limit: eventsPerPage })}
               className="px-4 py-2 text-gray-700 dark:text-gray-300 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-200"
             >
               Clear Filters
@@ -289,11 +293,11 @@ export const Events: React.FC = () => {
               <p className="text-sm text-gray-700 dark:text-gray-300">
                 Showing{' '}
                 <span className="font-medium">
-                  {((filters.page || 1) - 1) * (filters.limit || 20) + 1}
+                  {((filters.page || 1) - 1) * (filters.limit || eventsPerPage) + 1}
                 </span>{' '}
                 to{' '}
                 <span className="font-medium">
-                  {Math.min((filters.page || 1) * (filters.limit || 20), data?.total || 0)}
+                  {Math.min((filters.page || 1) * (filters.limit || eventsPerPage), data?.total || 0)}
                 </span>{' '}
                 of{' '}
                 <span className="font-medium">{data?.total || 0}</span> results

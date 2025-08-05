@@ -1,8 +1,8 @@
-import { useQuery, UseQueryOptions } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
 import { statisticsApi, eventsApi, mockData } from '../services/api';
 import { FilterOptions } from '../types';
 
-const USE_MOCK_DATA = true; // Toggle for development
+const USE_MOCK_DATA = false; // Toggle for development - temporarily true due to MongoDB connection issues
 
 export const useEvents = (filters?: FilterOptions) => {
   return useQuery({
@@ -13,10 +13,14 @@ export const useEvents = (filters?: FilterOptions) => {
         await new Promise(resolve => setTimeout(resolve, 500));
         return mockData.events;
       }
-      return eventsApi.getEvents(filters);
+      try {
+        return await eventsApi.getEvents(filters);
+      } catch (error) {
+        console.error('Failed to fetch events:', error);
+        return { events: [], total: 0, page: 1, limit: 20 };
+      }
     },
-    staleTime: 30000, // 30 seconds
-    refetchInterval: 30000, // Auto-refresh every 30 seconds
+    staleTime: 300000, // 5 minutes - data stays fresh longer
   });
 };
 
@@ -28,10 +32,14 @@ export const useTotalEvents = () => {
         await new Promise(resolve => setTimeout(resolve, 300));
         return mockData.statistics.totalEvents;
       }
-      return statisticsApi.getTotalEvents();
+      try {
+        return await statisticsApi.getTotalEvents();
+      } catch (error) {
+        console.error('Failed to fetch total events:', error);
+        return { count: 0, trend: 0 };
+      }
     },
-    staleTime: 30000,
-    refetchInterval: 30000,
+    staleTime: 300000, // 5 minutes
   });
 };
 
@@ -43,10 +51,14 @@ export const useTotalUsers = () => {
         await new Promise(resolve => setTimeout(resolve, 300));
         return mockData.statistics.totalUsers;
       }
-      return statisticsApi.getTotalUsers();
+      try {
+        return await statisticsApi.getTotalUsers();
+      } catch (error) {
+        console.error('Failed to fetch total users:', error);
+        return { count: 0, trend: 0 };
+      }
     },
-    staleTime: 30000,
-    refetchInterval: 30000,
+    staleTime: 300000, // 5 minutes
   });
 };
 
@@ -58,10 +70,14 @@ export const useAverageEventsPerUser = () => {
         await new Promise(resolve => setTimeout(resolve, 300));
         return mockData.statistics.averageEventsPerUser;
       }
-      return statisticsApi.getAverageEventsPerUser();
+      try {
+        return await statisticsApi.getAverageEventsPerUser();
+      } catch (error) {
+        console.error('Failed to fetch average events per user:', error);
+        return { average: 0, trend: 0 };
+      }
     },
-    staleTime: 30000,
-    refetchInterval: 30000,
+    staleTime: 300000, // 5 minutes
   });
 };
 
@@ -73,10 +89,14 @@ export const useUserRetentionRate = () => {
         await new Promise(resolve => setTimeout(resolve, 300));
         return mockData.statistics.userRetentionRate;
       }
-      return statisticsApi.getUserRetentionRate();
+      try {
+        return await statisticsApi.getUserRetentionRate();
+      } catch (error) {
+        console.error('Failed to fetch user retention rate:', error);
+        return { rate: 0, trend: 0 };
+      }
     },
-    staleTime: 30000,
-    refetchInterval: 30000,
+    staleTime: 300000, // 5 minutes
   });
 };
 
@@ -88,10 +108,14 @@ export const useEventsByType = () => {
         await new Promise(resolve => setTimeout(resolve, 500));
         return mockData.eventsByType;
       }
-      return statisticsApi.getEventsByType();
+      try {
+        return await statisticsApi.getEventsByType();
+      } catch (error) {
+        console.error('Failed to fetch events by type:', error);
+        return [];
+      }
     },
-    staleTime: 30000,
-    refetchInterval: 30000,
+    staleTime: 300000, // 5 minutes
   });
 };
 
@@ -103,10 +127,14 @@ export const useEventsByMonth = () => {
         await new Promise(resolve => setTimeout(resolve, 500));
         return mockData.eventsByMonth;
       }
-      return statisticsApi.getEventsByMonth();
+      try {
+        return await statisticsApi.getEventsByMonth();
+      } catch (error) {
+        console.error('Failed to fetch events by month:', error);
+        return [];
+      }
     },
-    staleTime: 30000,
-    refetchInterval: 30000,
+    staleTime: 300000, // 5 minutes
   });
 };
 
@@ -118,9 +146,13 @@ export const useTopUsers = () => {
         await new Promise(resolve => setTimeout(resolve, 500));
         return mockData.topUsers;
       }
-      return statisticsApi.getTopUsers();
+      try {
+        return await statisticsApi.getTopUsers();
+      } catch (error) {
+        console.error('Failed to fetch top users:', error);
+        return [];
+      }
     },
-    staleTime: 30000,
-    refetchInterval: 30000,
+    staleTime: 300000, // 5 minutes
   });
 };

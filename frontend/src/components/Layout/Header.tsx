@@ -25,12 +25,6 @@ export const Header: React.FC<HeaderProps> = ({ onMenuToggle }) => {
           >
             <Menu className="w-5 h-5" />
           </button>
-          
-          <div className="ml-4 lg:ml-0">
-            <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
-              Analytics Dashboard
-            </h2>
-          </div>
         </div>
 
         <div className="flex items-center space-x-4">

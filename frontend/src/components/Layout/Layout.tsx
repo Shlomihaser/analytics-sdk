@@ -13,7 +13,7 @@ export const Layout: React.FC = () => {
       <Sidebar isOpen={sidebarOpen} onToggle={toggleSidebar} />
       <div className="flex-1 flex flex-col">
         <Header onMenuToggle={toggleSidebar} />
-        <main>
+        <main className="py-8">
           <div className="mx-auto max-w-7xl px-4 lg:px-6">
             <Outlet />
           </div>

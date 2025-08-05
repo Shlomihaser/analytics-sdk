@@ -11,6 +11,21 @@ import {
   useUserRetentionRate 
 } from '../hooks/useApi';
 
+// Utility functions for safe number formatting
+const safeFormatNumber = (value: any, defaultValue: string = '0'): string => {
+  if (value === null || value === undefined || isNaN(value)) {
+    return defaultValue;
+  }
+  return Number(value).toLocaleString();
+};
+
+const safeFormatDecimal = (value: any, decimals: number = 2, defaultValue: string = '0.00'): string => {
+  if (value === null || value === undefined || isNaN(value)) {
+    return defaultValue;
+  }
+  return Number(value).toFixed(decimals);
+};
+
 export const Dashboard: React.FC = () => {
   const { data: totalEvents, isLoading: loadingTotalEvents } = useTotalEvents();
   const { data: totalUsers, isLoading: loadingTotalUsers } = useTotalUsers();
@@ -31,33 +46,29 @@ export const Dashboard: React.FC = () => {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <MetricCard
           title="Total Events"
-          value={totalEvents?.count?.toLocaleString() || '0'}
-          trend={totalEvents?.trend}
+          value={safeFormatNumber(totalEvents?.count)}
           icon={<BarChart3 className="w-6 h-6" />}
           isLoading={loadingTotalEvents}
         />
         
         <MetricCard
           title="Total Users"
-          value={totalUsers?.count?.toLocaleString() || '0'}
-          trend={totalUsers?.trend}
+          value={safeFormatNumber(totalUsers?.count)}
           icon={<Users className="w-6 h-6" />}
           isLoading={loadingTotalUsers}
         />
         
         <MetricCard
           title="Avg Events/User"
-          value={avgEvents?.average?.toFixed(2) || '0.00'}
-          trend={avgEvents?.trend}
+          value={safeFormatDecimal(avgEvents?.average, 2)}
           icon={<Activity className="w-6 h-6" />}
           isLoading={loadingAvgEvents}
         />
         
         <MetricCard
           title="User Retention"
-          value={retention?.rate?.toFixed(1) || '0.0'}
+          value={safeFormatDecimal(retention?.rate, 1, '0.0')}
           suffix="%"
-          trend={retention?.trend}
           icon={<TrendingUp className="w-6 h-6" />}
           isLoading={loadingRetention}
         />
@@ -73,15 +84,7 @@ export const Dashboard: React.FC = () => {
         <EventsByMonthChart />
       </div>
 
-      {/* Additional Info */}
-      <div className="bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20 rounded-lg p-6">
-        <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
-          Real-time Analytics
-        </h3>
-        <p className="text-gray-600 dark:text-gray-400">
-          All charts and metrics are updated automatically every 30 seconds to provide you with the most current insights into your application's performance and user behavior.
-        </p>
-      </div>
+
     </div>
   );
 };

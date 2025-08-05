@@ -19,9 +19,8 @@ const api = axios.create({
   timeout: 10000,
 });
 
-// Add request interceptor for debugging
+// Add request interceptor
 api.interceptors.request.use((config) => {
-  console.log(`API Request: ${config.method?.toUpperCase()} ${config.url}`);
   return config;
 });
 
@@ -37,8 +36,17 @@ api.interceptors.response.use(
 export const eventsApi = {
   getEvents: async (filters?: FilterOptions): Promise<EventsResponse> => {
     const params = new URLSearchParams();
-    if (filters?.startDate) params.append('startDate', filters.startDate);
-    if (filters?.endDate) params.append('endDate', filters.endDate);
+    
+    // Convert date strings to ISO datetime format for the backend
+    if (filters?.startDate) {
+      const startDateTime = `${filters.startDate}T00:00:00Z`;
+      params.append('startDate', startDateTime);
+    }
+    if (filters?.endDate) {
+      const endDateTime = `${filters.endDate}T23:59:59Z`;
+      params.append('endDate', endDateTime);
+    }
+    
     if (filters?.eventType) params.append('eventType', filters.eventType);
     if (filters?.userId) params.append('userId', filters.userId);
     if (filters?.metadata) params.append('metadata', filters.metadata);
@@ -51,8 +59,17 @@ export const eventsApi = {
 
   exportEvents: async (filters?: FilterOptions, format: 'csv' | 'json' = 'csv') => {
     const params = new URLSearchParams();
-    if (filters?.startDate) params.append('startDate', filters.startDate);
-    if (filters?.endDate) params.append('endDate', filters.endDate);
+    
+    // Convert date strings to ISO datetime format for the backend
+    if (filters?.startDate) {
+      const startDateTime = `${filters.startDate}T00:00:00Z`;
+      params.append('startDate', startDateTime);
+    }
+    if (filters?.endDate) {
+      const endDateTime = `${filters.endDate}T23:59:59Z`;
+      params.append('endDate', endDateTime);
+    }
+    
     if (filters?.eventType) params.append('eventType', filters.eventType);
     if (filters?.userId) params.append('userId', filters.userId);
     params.append('format', format);

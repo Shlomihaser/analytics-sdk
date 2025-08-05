@@ -3,9 +3,11 @@ import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContai
 import { useEventsByMonth } from '../../hooks/useApi';
 import { ChartSkeleton } from '../UI/LoadingSkeleton';
 import { format, parseISO } from 'date-fns';
+import { useSettings } from '../../context/SettingsContext';
 
 export const EventsByMonthChart: React.FC = () => {
   const { data, isLoading, error } = useEventsByMonth();
+  const { chartAnimationsEnabled } = useSettings();
 
   if (isLoading) {
     return <ChartSkeleton />;
@@ -19,6 +21,19 @@ export const EventsByMonthChart: React.FC = () => {
         </h3>
         <div className="text-center text-red-500 dark:text-red-400">
           Failed to load chart data
+        </div>
+      </div>
+    );
+  }
+
+  if (!data || data.length === 0) {
+    return (
+      <div className="bg-white dark:bg-gray-800 rounded-lg p-6 shadow-sm">
+        <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+          Monthly Events Trend
+        </h3>
+        <div className="text-center text-gray-500 dark:text-gray-400 py-8">
+          No monthly data available
         </div>
       </div>
     );
@@ -50,13 +65,22 @@ export const EventsByMonthChart: React.FC = () => {
       </h3>
       <div className="h-80">
         <ResponsiveContainer width="100%" height="100%">
-          <LineChart data={formattedData}>
+          <LineChart 
+            data={formattedData}
+            margin={{ top: 20, right: 30, left: 20, bottom: 20 }}
+          >
             <CartesianGrid strokeDasharray="3 3" className="opacity-30" />
             <XAxis 
               dataKey="monthLabel" 
               className="text-gray-600 dark:text-gray-400"
+              tick={{ fontSize: 12 }}
             />
-            <YAxis className="text-gray-600 dark:text-gray-400" />
+            <YAxis 
+              className="text-gray-600 dark:text-gray-400"
+              domain={[0, formattedData?.length === 1 ? 'dataMax + 5' : 'dataMax + 2']}
+              allowDecimals={false}
+              tickCount={formattedData?.length === 1 ? 4 : 6}
+            />
             <Tooltip content={<CustomTooltip />} />
             <Line 
               type="monotone" 
@@ -65,6 +89,9 @@ export const EventsByMonthChart: React.FC = () => {
               strokeWidth={3}
               dot={{ fill: '#3B82F6', strokeWidth: 2, r: 6 }}
               activeDot={{ r: 8, stroke: '#3B82F6', strokeWidth: 2 }}
+              connectNulls={false}
+              animationBegin={0}
+              animationDuration={chartAnimationsEnabled ? 1000 : 0}
             />
           </LineChart>
         </ResponsiveContainer>
