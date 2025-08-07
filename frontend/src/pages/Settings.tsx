@@ -9,7 +9,11 @@ export const Settings: React.FC = () => {
     eventsPerPage, 
     setEventsPerPage, 
     chartAnimationsEnabled, 
-    setChartAnimationsEnabled, 
+    setChartAnimationsEnabled,
+    exportFormat,
+    setExportFormat,
+    includeMetadata,
+    setIncludeMetadata,
     saveSettings, 
     isDirty 
   } = useSettings();
@@ -131,7 +135,11 @@ export const Settings: React.FC = () => {
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               Default Export Format
             </label>
-            <select className="w-full sm:w-auto px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
+            <select 
+              value={exportFormat}
+              onChange={(e) => setExportFormat(e.target.value as any)}
+              className="w-full sm:w-auto px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+            >
               <option value="csv">CSV</option>
               <option value="json">JSON</option>
               <option value="xlsx">Excel</option>
@@ -145,7 +153,8 @@ export const Settings: React.FC = () => {
             <div className="flex items-center">
               <input
                 type="checkbox"
-                defaultChecked
+                checked={includeMetadata}
+                onChange={(e) => setIncludeMetadata(e.target.checked)}
                 className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
               />
               <span className="ml-2 text-sm text-gray-700 dark:text-gray-300">

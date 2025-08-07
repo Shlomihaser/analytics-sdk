@@ -68,3 +68,5 @@ export interface Statistics {
   averageEventsPerUser: number;
   userRetentionRate: number;
 }
+
+export type ExportFormat = 'csv' | 'json' | 'xlsx';

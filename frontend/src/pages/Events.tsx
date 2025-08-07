@@ -14,7 +14,7 @@ import { useSettings } from '../context/SettingsContext';
 import { LoadingSkeleton } from '../components/UI/LoadingSkeleton';
 
 export const Events: React.FC = () => {
-  const { eventsPerPage } = useSettings();
+  const { eventsPerPage, exportFormat } = useSettings();
   
   const [filters, setFilters] = useState<FilterOptions>({
     page: 1,
@@ -49,13 +49,13 @@ export const Events: React.FC = () => {
     }));
   };
 
-  const handleExport = async (format: 'csv') => {
+  const handleExport = async () => {
     try {
-      const blob = await eventsApi.exportEvents(filters, format);
+      const blob = await eventsApi.exportEvents(filters, exportFormat);
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = `events-${Date.now()}.${format}`;
+      a.download = `events-${Date.now()}.${exportFormat}`;
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
@@ -116,11 +116,11 @@ export const Events: React.FC = () => {
           </button>
           
           <button
-            onClick={() => handleExport('csv')}
+            onClick={handleExport}
             className="flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200"
           >
             <Download className="w-4 h-4 mr-2" />
-            Export CSV
+            Export {exportFormat.toUpperCase()}
           </button>
         </div>
       </div>
